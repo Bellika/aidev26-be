@@ -31,6 +31,18 @@ def get_database_url():
     return "mysql+pymysql://root:@localhost:3306/aidev_web"
 
 DATABASE_URL = get_database_url()
+
+# Validate DATABASE_URL before proceeding
+if not DATABASE_URL or "://:@" in DATABASE_URL or DATABASE_URL.count(":") < 2:
+    error_msg = (
+        "ERROR: Database connection URL is not properly configured!\n"
+        "Please ensure MySQL environment variables are set in Railway:\n"
+        "Required variables: MYSQLHOST, MYSQLPORT, MYSQLUSER, MYSQLPASSWORD, MYSQLDATABASE\n"
+        f"Current URL format: {DATABASE_URL[:30]}..."
+    )
+    print(error_msg)
+    raise ValueError(error_msg)
+
 print(f"Connecting to database: {DATABASE_URL.split('@')[0]}@***")  # Log without exposing full credentials
 
 # Database settings from environment variables
