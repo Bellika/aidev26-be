@@ -116,8 +116,9 @@ if __name__ == "__main__":
     import uvicorn
 
     # Get app settings from environment variables
+    # Railway uses PORT, fallback to APP_PORT for local development
     APP_HOST = os.getenv("APP_HOST", "0.0.0.0")
-    APP_PORT = int(os.getenv("APP_PORT", "8000"))
+    APP_PORT = int(os.getenv("PORT", os.getenv("APP_PORT", "8000")))
     APP_RELOAD = os.getenv("APP_RELOAD", "True").lower() == "true"
 
     print("\n" + "="*70)
