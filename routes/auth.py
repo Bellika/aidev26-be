@@ -5,7 +5,7 @@ from schemas.auth import LoginRequest, TokenResponse, CurrentUser
 from models.user import User
 from config.database import get_db
 from utils.password import verify_password
-from utils.auth import create_access_token, decode_access_token
+from utils.auth import create_access_token, decode_access_token, ACCESS_TOKEN_EXPIRE_MINUTES
 
 # Create a router for auth endpoints
 router = APIRouter(
@@ -60,7 +60,7 @@ async def login(login_data: LoginRequest, response: Response, db: Session = Depe
         key="access_token",
         value=access_token,
         httponly=True,  # Prevents JavaScript access
-        max_age=1800,   # 30 minutes
+        max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,  # Convert minutes to seconds
         samesite="lax"  # CSRF protection
     )
 

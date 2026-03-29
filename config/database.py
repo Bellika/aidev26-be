@@ -1,17 +1,27 @@
+import os
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from dotenv import load_dotenv
 
-# Database connection URL
+# Load environment variables from .env file
+load_dotenv()
+
+# Database connection URL from environment variable
 # Format: mysql+pymysql://username:password@host:port/database
-DATABASE_URL = "mysql+pymysql://root:@localhost:3306/aidev_web"
+DATABASE_URL = os.getenv("DATABASE_URL", "mysql+pymysql://root:@localhost:3306/aidev_web")
+
+# Database settings from environment variables
+DATABASE_ECHO = os.getenv("DATABASE_ECHO", "True").lower() == "true"
+DATABASE_POOL_PRE_PING = os.getenv("DATABASE_POOL_PRE_PING", "True").lower() == "true"
+DATABASE_POOL_RECYCLE = int(os.getenv("DATABASE_POOL_RECYCLE", "3600"))
 
 # Create the database engine
 engine = create_engine(
     DATABASE_URL,
-    echo=True,  # Set to False in production to disable SQL logging
-    pool_pre_ping=True,  # Verify connections before using them
-    pool_recycle=3600  # Recycle connections after 1 hour
+    echo=DATABASE_ECHO,  # Set to False in production to disable SQL logging
+    pool_pre_ping=DATABASE_POOL_PRE_PING,  # Verify connections before using them
+    pool_recycle=DATABASE_POOL_RECYCLE  # Recycle connections after 1 hour
 )
 
 # Create a SessionLocal class for database sessions

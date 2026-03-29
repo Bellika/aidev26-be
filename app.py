@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
@@ -5,6 +6,16 @@ from sqlalchemy import text
 from routes.users import router as users_router
 from routes.auth import router as auth_router
 from config.database import init_db, get_db
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Get CORS origins from environment variable
+CORS_ORIGINS = os.getenv(
+    "CORS_ORIGINS",
+    "http://localhost:5173,http://localhost:5174,http://127.0.0.1:5173,http://127.0.0.1:5174"
+).split(",")
 
 # Create the FastAPI application
 app = FastAPI(
@@ -16,12 +27,7 @@ app = FastAPI(
 # Configure CORS for React frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://localhost:5174",
-        "http://127.0.0.1:5173",
-        "http://127.0.0.1:5174",
-    ],
+    allow_origins=CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -108,14 +114,20 @@ async def health_check(db: Session = Depends(get_db)):
 
 if __name__ == "__main__":
     import uvicorn
+
+    # Get app settings from environment variables
+    APP_HOST = os.getenv("APP_HOST", "0.0.0.0")
+    APP_PORT = int(os.getenv("APP_PORT", "8000"))
+    APP_RELOAD = os.getenv("APP_RELOAD", "True").lower() == "true"
+
     print("\n" + "="*70)
     print("🚀 Starting User Management API with MySQL and JWT Auth...")
     print("="*70)
     print("📚 Lesson 5: FastAPI with MySQL, CRUD, and JWT Authentication")
     print("="*70)
     print("📖 API Documentation:")
-    print("   - Swagger UI: http://localhost:8000/docs")
-    print("   - ReDoc:      http://localhost:8000/redoc")
+    print(f"   - Swagger UI: http://localhost:{APP_PORT}/docs")
+    print(f"   - ReDoc:      http://localhost:{APP_PORT}/redoc")
     print("="*70)
     print("🔗 User Endpoints:")
     print("   - GET    /users       - Fetch all users")
@@ -138,4 +150,4 @@ if __name__ == "__main__":
     print("   - Full CRUD operations")
     print("="*70 + "\n")
 
-    uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run(app, host=APP_HOST, port=APP_PORT, reload=APP_RELOAD)
